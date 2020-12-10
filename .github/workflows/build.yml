@@ -1,0 +1,25 @@
+name: Build CI
+
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: setup requirements
+      run: |
+        sudo apt update
+        sudo apt install gcc-mingw-w64-x86-64 binutils-mingw-w64-x86-64
+    - name: make
+      run: make
+    - name: copy exe to out directory
+      run: |
+        mkdir out
+        cp *.exe ./out
+    - name: Upload zip file to artifact
+      uses: actions/upload-artifact@v1
+      with:
+          name: all
+          path: ./out/
