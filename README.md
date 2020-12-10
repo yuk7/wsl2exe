@@ -1,7 +1,7 @@
 # wsl2exe
 Use command in WSL from exe executable
 
-## Demo
+## 🧪Demo
 ![demo](https://user-images.githubusercontent.com/29954265/101806072-dd3e3580-3b56-11eb-9620-5a591df89b24.gif)
 
 ## 💻Requirements
@@ -28,6 +28,6 @@ The path recognition & translation algorithm is still tentative and subject to c
 
 
 ## 📄License
-[MIT](https://github.com/yuk7/wsl2exe/blob/main/LICENSES.md)
+[MIT](https://github.com/yuk7/wsl2exe/blob/main/LICENSE)
 
 Copyright (c) 2017-2020 yuk7
