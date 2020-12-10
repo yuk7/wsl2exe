@@ -1,0 +1,81 @@
+/*
+ * Copyright (c) 2017-2020 yuk7
+ * Author: yuk7 <yukx00@gmail.com>
+ *
+ * Released under the MIT license
+ * http://opensource.org/licenses/mit-license.php
+ */
+
+#include <stdbool.h>
+#include <stdio.h>
+#include <string.h>
+#include <wchar.h>
+#include "wsl2exe_common.h"
+#include "wsld.h"
+
+#define ARRAY_LENGTH(a) (sizeof(a)/sizeof(a[0]))
+
+int main()
+{
+    wchar_t **wargv;
+    int wargc;
+    wargv = CommandLineToArgvW(GetCommandLineW(), &wargc);
+
+    wchar_t *modName;
+    modName = GetModuleName();
+
+    wchar_t *distName;
+    distName = WslGetDefaultDistroName();
+
+    wchar_t **convdWargv;
+    convdWargv = malloc(sizeof(wchar_t*) * wargc);
+
+    //prepare convdWargv
+    size_t modNameSize = wcslen(modName);
+    convdWargv[0] = (wchar_t*)malloc(sizeof(wchar_t) * (modNameSize + 1));
+    wcscpy_s(convdWargv[0], modNameSize + 1, modName);
+
+    for (int i = 1; i < wargc; i++) {
+        if(wcsstr(wargv[i], L"\\") != NULL) {
+            wchar_t buf[SHRT_MAX];
+            if(WslQueryWslPath(distName, wargv[i], buf)) {
+                fwprintf(stderr, L"ERROR: Path translation failed.\n");
+                return E_FAIL;
+            }
+            size_t bufLen = wcslen(buf);
+            convdWargv[i] = (wchar_t*)malloc(sizeof(wchar_t) * (bufLen + 1));
+            wcscpy_s(convdWargv[i], bufLen + 1, buf);
+        } else {
+            size_t len = wcslen(wargv[i]);
+            convdWargv[i] = (wchar_t*)malloc(sizeof(wchar_t) * (len + 1));
+            wcscpy_s(convdWargv[i], len + 1, wargv[i]);
+        }
+    }
+
+
+    //launcher
+    size_t total = 0;
+    for (int i = 0; i < wargc; i++) {
+        total++; //for space
+        total += wcslen(convdWargv[i]);
+    }
+    total--;
+
+    size_t totalSize = (sizeof(wchar_t) * (total + 1));
+    wchar_t *command = (wchar_t*)malloc(totalSize);
+    wcscpy_s(command, totalSize, convdWargv[0]);
+
+    for (int i = 1; i < wargc; i++) {
+        wcscat_s(command, totalSize, L" ");
+        wcscat_s(command, totalSize, convdWargv[i]);
+    }
+
+    HRESULT hr;
+    DWORD exitCode = 1;
+    hr = WslLaunchInteractive(distName, command, true, &exitCode);
+    if (hr == S_OK) {
+        return exitCode;
+    } else {
+        return hr;
+    }
+}

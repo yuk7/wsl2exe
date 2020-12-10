@@ -82,7 +82,7 @@ wchar_t *WslGetDefaultDistroName() {
     return name;
 }
 
- unsigned long WslExec(wchar_t *DistroName, wchar_t *command, char *result, long unsigned int *len)
+ unsigned long WslExec(wchar_t *distroName, wchar_t *command, char *result, long unsigned int *len)
  {
      HANDLE hProcess;
      HANDLE hOutTmp,hOut;
@@ -94,7 +94,7 @@ wchar_t *WslGetDefaultDistroName() {
     
     CreatePipe(&hOut, &hOutTmp, &sa, 0);
     CreatePipe(&hIn, &hInTmp, &sa, 0);
-    if(WslLaunch(DistroName, command, 1, hInTmp, hOutTmp, hOutTmp, &hProcess))
+    if(WslLaunch(distroName, command, 1, hInTmp, hOutTmp, hOutTmp, &hProcess))
     {
         return 100000;
     }
@@ -121,6 +121,42 @@ wchar_t *WslGetDefaultDistroName() {
 
     return exitcode;
  }
+
+int WslQueryWslPath(wchar_t *distroName, wchar_t *wPath, wchar_t *out) {
+    size_t pathLen = wcslen(wPath);
+    size_t pathTmpSize = (sizeof(wchar_t) * (pathLen + 1));
+    wchar_t* pathTmp = (wchar_t*)malloc(pathTmpSize);
+    wcscpy_s(pathTmp, pathLen + 1, wPath);
+
+    //Replace "\" in the path with "/" for instead of escaping
+    for(int i = 0; i < pathLen; i++) {
+        if(pathTmp[i] == L'\\') {
+            pathTmp[i] = L'/';
+        }
+    }
+
+    wchar_t wslpath_before[] = L"wslpath -u \"";
+    wchar_t wslpath_after[] = L"\"";
+    size_t wslpathLen = (wcslen(wslpath_before) + wcslen(wslpath_after));
+
+    size_t commandLen = wslpathLen + pathLen;
+
+    size_t commandSize = (sizeof(wchar_t) * (commandLen) + 1);
+    wchar_t* command = (wchar_t*)malloc(sizeof(wchar_t) * (commandSize + 1));
+
+    wcscpy_s(command, commandLen + 1, wslpath_before);
+    wcscat_s(command, commandLen + 1, pathTmp);
+    wcscat_s(command, commandLen + 1, wslpath_after);
+
+    char buf[SHRT_MAX] = "";
+    long unsigned int len = SHRT_MAX;
+    if(WslExec(distroName, command, buf, &len) != 0) {
+        return 1;
+    }
+
+    MultiByteToWideChar(CP_UTF8, 0, buf, -1, out, SHRT_MAX);
+    return 0;
+}
 
 #ifdef __cplusplus
 }
