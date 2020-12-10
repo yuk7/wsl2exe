@@ -5,11 +5,11 @@ DLLTOOL=dlltool
 
 all: wsl2exe.exe wsl2exe_ap.exe
 
-wsl2exe.exe:
-	${CROSS_COMPILE}${CC} ${CFLAGS} wsl2exe.c -lwslapi -o wsl2exe.exe
+wsl2exe.exe: libwslapi.a
+	${CROSS_COMPILE}${CC} ${CFLAGS} wsl2exe.c -L./ -lwslapi -o wsl2exe.exe
 
-wsl2exe_ap.exe:
-	${CROSS_COMPILE}${CC} ${CFLAGS} wsl2exe_ap.c -lwslapi -o wsl2exe_ap.exe
+wsl2exe_ap.exe: libwslapi.a
+	${CROSS_COMPILE}${CC} ${CFLAGS} wsl2exe_ap.c -L./ -lwslapi -o wsl2exe_ap.exe
 
 libwslapi.a:
 	${CROSS_COMPILE}${DLLTOOL} -d wslapi.def -l libwslapi.a
