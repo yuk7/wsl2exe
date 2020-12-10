@@ -40,12 +40,11 @@ wchar_t *WslGetDefaultDistroUuid() {
     wchar_t* uuid = (wchar_t*)malloc(sizeof(wchar_t) * _UUID_SIZE);
 
     HKEY hKey;
-    LONG rres;
     if(RegOpenKeyExW(HKEY_CURRENT_USER, LXSS_BASE_RKEY, 0, KEY_READ, &hKey) == ERROR_SUCCESS) {
         DWORD dwType;
         DWORD dwSize = (_UUID_SIZE*sizeof(wchar_t));
 
-        rres = RegQueryValueExW(hKey, L"DefaultDistribution", NULL, &dwType, (LPBYTE)uuid, &dwSize);
+        RegQueryValueExW(hKey, L"DefaultDistribution", NULL, &dwType, (LPBYTE)uuid, &dwSize);
     }
 
     return uuid;
@@ -60,12 +59,11 @@ wchar_t *WslGetDistroNameFromUuid(wchar_t *uuid) {
     wcscat_s(RKey,(sizeof(RKey)/sizeof(RKey[0])),uuid);
 
     HKEY hKey;
-    LONG rres;
     if(RegOpenKeyExW(HKEY_CURRENT_USER, RKey, 0, KEY_READ, &hKey) == ERROR_SUCCESS) {
         DWORD dwType;
         DWORD dwSize = (_MAX_DISTRO_NAME_SIZE*sizeof(wchar_t));
 
-        rres = RegQueryValueExW(hKey, L"DistributionName", NULL, &dwType, (LPBYTE)name, &dwSize);
+        RegQueryValueExW(hKey, L"DistributionName", NULL, &dwType, (LPBYTE)name, &dwSize);
     }
 
     return name;
