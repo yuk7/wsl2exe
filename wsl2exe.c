@@ -35,11 +35,11 @@ int main()
 
     size_t totalSize = (sizeof(wchar_t) * (total + 1));
     wchar_t *command = (wchar_t*)malloc(totalSize);
-    wcscat_s(command, totalSize ,modName);
+    wcscpy_s(command, totalSize, modName);
 
     for (int i = 1; i < wargc; i++) {
-        wcscat_s(command, totalSize ,L" ");
-        wcscat_s(command, totalSize ,wargv[i]);
+        wcscat_s(command, totalSize, L" ");
+        wcscat_s(command, totalSize, wargv[i]);
     }
 
     HRESULT hr;
