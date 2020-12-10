@@ -29,9 +29,9 @@ int main()
 
     size_t total = wcslen(modName);
     for (int i = 1; i < wargc; i++) {
-		total++; //for space
+        total++; //for space
         total += wcslen(wargv[i]);
-	}
+    }
 
     size_t totalSize = (sizeof(wchar_t) * (total + 1));
     wchar_t *command = (wchar_t*)malloc(totalSize);
@@ -40,7 +40,7 @@ int main()
     for (int i = 1; i < wargc; i++) {
         wcscat_s(command, totalSize ,L" ");
         wcscat_s(command, totalSize ,wargv[i]);
-	}
+    }
 
     HRESULT hr;
     DWORD exitCode = 1;
