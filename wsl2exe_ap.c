@@ -30,10 +30,13 @@ int main()
     wchar_t **convdWargv;
     convdWargv = malloc(sizeof(wchar_t*) * wargc);
 
+    wchar_t *modNameEscd;
+    modNameEscd = WcEscapeQuote(modName);
+
     //prepare convdWargv
-    size_t modNameSize = wcslen(modName);
-    convdWargv[0] = (wchar_t*)malloc(sizeof(wchar_t) * (modNameSize + 1));
-    wcscpy_s(convdWargv[0], modNameSize + 1, modName);
+    size_t modNameEscdSize = wcslen(modNameEscd);
+    convdWargv[0] = (wchar_t*)malloc(sizeof(wchar_t) * (modNameEscdSize + 1));
+    wcscpy_s(convdWargv[0], modNameEscdSize + 1, modNameEscd);
 
     for (int i = 1; i < wargc; i++) {
         if(wcsstr(wargv[i], L"\\") != NULL) {
@@ -42,13 +45,10 @@ int main()
                 fwprintf(stderr, L"ERROR: Path translation failed.\n");
                 return E_FAIL;
             }
-            size_t bufLen = wcslen(buf);
-            convdWargv[i] = (wchar_t*)malloc(sizeof(wchar_t) * (bufLen + 1));
-            wcscpy_s(convdWargv[i], bufLen + 1, buf);
+
+            convdWargv[i] = WcEscapeQuote(buf);
         } else {
-            size_t len = wcslen(wargv[i]);
-            convdWargv[i] = (wchar_t*)malloc(sizeof(wchar_t) * (len + 1));
-            wcscpy_s(convdWargv[i], len + 1, wargv[i]);
+            convdWargv[i] = WcEscapeQuote(wargv[i]);
         }
     }
 

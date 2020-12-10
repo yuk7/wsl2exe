@@ -27,19 +27,37 @@ int main()
     wchar_t *distName;
     distName = WslGetDefaultDistroName();
 
-    size_t total = wcslen(modName);
+    wchar_t **convdWargv;
+    convdWargv = malloc(sizeof(wchar_t*) * wargc);
+
+    wchar_t *modNameEscd;
+    modNameEscd = WcEscapeQuote(modName);
+
+    //prepare convdWargv
+    size_t modNameEscdSize = wcslen(modNameEscd);
+    convdWargv[0] = (wchar_t*)malloc(sizeof(wchar_t) * (modNameEscdSize + 1));
+    wcscpy_s(convdWargv[0], modNameEscdSize + 1, modNameEscd);
+
     for (int i = 1; i < wargc; i++) {
-        total++; //for space
-        total += wcslen(wargv[i]);
+        convdWargv[i] = WcEscapeQuote(wargv[i]);
     }
+
+
+    //launcher
+    size_t total = 0;
+    for (int i = 0; i < wargc; i++) {
+        total++; //for space
+        total += wcslen(convdWargv[i]);
+    }
+    total--;
 
     size_t totalSize = (sizeof(wchar_t) * (total + 1));
     wchar_t *command = (wchar_t*)malloc(totalSize);
-    wcscpy_s(command, totalSize, modName);
+    wcscpy_s(command, totalSize, convdWargv[0]);
 
     for (int i = 1; i < wargc; i++) {
         wcscat_s(command, totalSize, L" ");
-        wcscat_s(command, totalSize, wargv[i]);
+        wcscat_s(command, totalSize, convdWargv[i]);
     }
 
     HRESULT hr;
